@@ -8,7 +8,7 @@ from fastapi.encoders import jsonable_encoder
 
 from services.profile import EditProfileRequest, edit_profile_by_id, get_profile_by_id
 
-# All API routes will have a path prefix of ``/v1``.
+# All API routes defined in this module will have a path prefix of ``/v1``.
 # E.g., ``@router.get("/foo/bar")`` adds a route at ``/v1/foo/bar``.
 # :see: https://fastapi.tiangolo.com/tutorial/bigger-applications/#apirouter
 router = APIRouter(prefix="/v1", tags=["v1"])
