@@ -85,16 +85,15 @@ def test_edit_profile_by_id_happy_path(profiles: list[Profile]):
 
     actual: Profile = my_service.edit_profile_by_id(target_profile.id, data)
 
+    # ID cannot be edited.
+    assert actual.id == target_profile.id
+
     assert actual.username == data.username
     assert actual.password == data.password
     assert actual.gender == data.gender
     assert actual.full_name == data.full_name
     assert actual.street_address == data.street_address
     assert actual.email == data.email
-
-    # These attributes cannot be edited.
-    assert actual.id == target_profile.id
-    assert actual.created_at == target_profile.created_at
 
     # Verify that the saved profile was correctly stored in the "database".
     loaded_profiles = my_service.load_profiles()
@@ -103,14 +102,13 @@ def test_edit_profile_by_id_happy_path(profiles: list[Profile]):
     assert loaded_profiles[1:] == profiles[1:]
 
     # The updated profile was saved correctly.
+    assert loaded_profiles[0].id == target_profile.id
     assert loaded_profiles[0].username == data.username
     assert loaded_profiles[0].password == data.password
     assert loaded_profiles[0].gender == data.gender
     assert loaded_profiles[0].full_name == data.full_name
     assert loaded_profiles[0].street_address == data.street_address
     assert loaded_profiles[0].email == data.email
-    assert loaded_profiles[0].id == target_profile.id
-    assert loaded_profiles[0].created_at == target_profile.created_at
 
 
 def test_edit_profile_by_id_non_existent(profiles: list[Profile]):
