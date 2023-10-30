@@ -4,6 +4,7 @@ Define routes for our v1 API.
 __all__ = ["router"]
 
 from fastapi import APIRouter, HTTPException
+from fastapi.encoders import jsonable_encoder
 
 from services.profile import EditProfileRequest, edit_profile_by_id, get_profile_by_id
 
@@ -34,8 +35,9 @@ def get_profile(profile_id: int) -> dict:
         raise HTTPException(status_code=404, detail="Profile not found")
 
     # Pydantic models can't be natively JSON-encoded, so we must convert the profile
-    # into a ``dict`` first.
-    return dict(profile)
+    # into a JSON-friendly format first.
+    # :see: https://fastapi.tiangolo.com/tutorial/encoder/
+    return jsonable_encoder(profile)
 
 
 @router.put("/profile/{profile_id}")
@@ -51,4 +53,4 @@ def edit_profile(profile_id: int, body: EditProfileRequest) -> dict:
     if not profile:
         raise HTTPException(status_code=404, detail="Profile not found")
 
-    return dict(profile)
+    return jsonable_encoder(profile)

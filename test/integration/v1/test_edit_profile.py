@@ -1,6 +1,7 @@
 """
 Unit tests for PUT ``/v1/profile/{profile_id}``.
 """
+from fastapi.encoders import jsonable_encoder
 from fastapi.testclient import TestClient
 
 from models.profile import Profile
@@ -28,17 +29,12 @@ def test_happy_path(client: TestClient, profiles: list[Profile]):
     )
 
     assert response.status_code == 200
-    assert response.json() == {
-        "username": "calmcat451",
-        "password": "shortjane",
-        "gender": "female",
-        "full_name": "Ethel Chen",
-        "street_address": "3775 Deerswim Lane",
-        "email": "ethel.chen@example.com",
-        # These attributes cannot be edited by the user.
-        "id": target_profile.id,
-        "created_at": target_profile.created_at.isoformat(),
-    }
+
+    # The response will contain the profile data, with updated values.
+    expected_response = jsonable_encoder(target_profile)
+    expected_response.update(request_body)
+
+    assert response.json() == expected_response
 
 
 def test_non_existent_profile(client: TestClient):
