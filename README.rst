@@ -71,7 +71,7 @@ We'll talk more about building a CLI app during tomorrow's workshop 😎
 Documentation
 -------------
 FastAPI automatically generates OpenAPI documentation for you.  Once you've started the
-server, go to `http://localhost:8000/docs <http://localhost:8000/docs>` to see it.
+server, go to `http://localhost:8000/docs <http://localhost:8000/docs>`_ to see it.
 
 Refer to `FastAPI documentation`_ for more information.
 
@@ -240,8 +240,8 @@ That's our happy path sorted.  Next we need to handle an error case, where the u
 requests a profile ID that doesn't exist.
 
 #. Try going to
-   `http://localhost:8000/v1/profile/999 <http://localhost:8000/v1/profile/999>` in your
-   browser or API development tool and note the server error that you get.
+   `http://localhost:8000/v1/profile/999 <http://localhost:8000/v1/profile/999>`_ in
+   your browser or API development tool and note the server error that you get.
 
 #. This time, let's try a TDD approach.  Write an integration test that sends a request
    to get an invalid profile ID and checks that the response status code is 404.
@@ -254,7 +254,7 @@ requests a profile ID that doesn't exist.
    your test pass.
 
    In order to send back a 404 response, your API endpoint will need to raise an
-   `HTTPException <http://localhost:8000/v1/profile/999>`_.
+   `HTTPException <https://fastapi.tiangolo.com/tutorial/handling-errors/#use-httpexception>`_.
 
 Step 3: Edit profile by ID (happy path)
 ---------------------------------------
