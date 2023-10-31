@@ -3,25 +3,24 @@ Unit tests for the profile service.
 """
 
 from models.profile import Profile
-from services import profile as my_service
-from services.profile import EditProfileRequest
+from services.profile import EditProfileRequest, ProfileService
 
 
 def test_load_profiles(profiles: list[Profile]):
     """
-    Sanity check, to make sure :py:func:my_service.load_profiles works as
+    Sanity check, to make sure :py:func:ProfileService.load_profiles works as
     expected.
 
     Note that the ``profiles`` fixture monkey-patches the service to load/save profiles
     in a temporary file.
     """
-    loaded_profiles = my_service.load_profiles()
+    loaded_profiles = ProfileService.load_profiles()
     assert loaded_profiles == profiles
 
 
 def test_save_profiles():
     """
-    Sanity check, to make sure :py:func:my_service.save_profiles works as
+    Sanity check, to make sure :py:func:ProfileService.save_profiles works as
     expected.
 
     Note that we declared the ``profiles`` fixture as ``autouse=True``, so it will
@@ -48,9 +47,9 @@ def test_save_profiles():
         ),
     ]
 
-    my_service.save_profiles(new_profiles)
+    ProfileService.save_profiles(new_profiles)
 
-    loaded_profiles = my_service.load_profiles()
+    loaded_profiles = ProfileService.load_profiles()
     assert loaded_profiles == new_profiles
 
 
@@ -58,14 +57,14 @@ def test_get_profile_by_id_happy_path(profiles: list[Profile]):
     """
     Getting a profile by its ID.
     """
-    assert my_service.get_profile_by_id(profiles[0].id) == profiles[0]
+    assert ProfileService.get_profile_by_id(profiles[0].id) == profiles[0]
 
 
 def test_get_profile_by_id_non_existent():
     """
     Attempting to get a profile that doesn't exist.
     """
-    assert my_service.get_profile_by_id(999) is None
+    assert ProfileService.get_profile_by_id(999) is None
 
 
 def test_edit_profile_by_id_happy_path(profiles: list[Profile]):
@@ -83,7 +82,7 @@ def test_edit_profile_by_id_happy_path(profiles: list[Profile]):
         email="ethel.chen@example.com",
     )
 
-    actual: Profile = my_service.edit_profile_by_id(target_profile.id, data)
+    actual: Profile = ProfileService.edit_profile_by_id(target_profile.id, data)
 
     # ID cannot be edited.
     assert actual.id == target_profile.id
@@ -96,7 +95,7 @@ def test_edit_profile_by_id_happy_path(profiles: list[Profile]):
     assert actual.email == data.email
 
     # Verify that the saved profile was correctly stored in the "database".
-    loaded_profiles = my_service.load_profiles()
+    loaded_profiles = ProfileService.load_profiles()
 
     # Non-matching profiles were saved unmodified.
     assert loaded_profiles[1:] == profiles[1:]
@@ -124,7 +123,7 @@ def test_edit_profile_by_id_non_existent(profiles: list[Profile]):
         email="ethel.chen@example.com",
     )
 
-    assert my_service.edit_profile_by_id(999, data) is None
+    assert ProfileService.edit_profile_by_id(999, data) is None
 
     # No changes were made to the "database".
-    assert my_service.load_profiles() == profiles
+    assert ProfileService.load_profiles() == profiles

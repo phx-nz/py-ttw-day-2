@@ -6,7 +6,7 @@ __all__ = ["router"]
 from fastapi import APIRouter, HTTPException
 from fastapi.encoders import jsonable_encoder
 
-from services.profile import EditProfileRequest, edit_profile_by_id, get_profile_by_id
+from services.profile import EditProfileRequest, ProfileService
 
 # All API routes defined in this module will have a path prefix of ``/v1``.
 # E.g., ``@router.get("/foo/bar")`` adds a route at ``/v1/foo/bar``.
@@ -29,7 +29,7 @@ def get_profile(profile_id: int) -> dict:
 
     Returns a 404 if no such profile exists.
     """
-    profile = get_profile_by_id(profile_id)
+    profile = ProfileService.get_profile_by_id(profile_id)
 
     if not profile:
         raise HTTPException(status_code=404, detail="Profile not found")
@@ -48,7 +48,7 @@ def edit_profile(profile_id: int, body: EditProfileRequest) -> dict:
 
     Returns a 404 if no such profile exists.
     """
-    profile = edit_profile_by_id(profile_id, body)
+    profile = ProfileService.edit_profile_by_id(profile_id, body)
 
     if not profile:
         raise HTTPException(status_code=404, detail="Profile not found")
