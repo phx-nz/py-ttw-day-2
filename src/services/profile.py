@@ -1,10 +1,24 @@
-__all__ = ["ProfileService"]
+__all__ = ["EditProfileRequest", "ProfileService"]
 
 from pathlib import Path
 
 import orjson
+from pydantic import BaseModel
 
 from models.profile import Profile
+
+
+class EditProfileRequest(BaseModel):
+    """
+    DTO for passing updated profile to :py:func:`ProfileService.edit_profile_by_id`.
+    """
+
+    username: str
+    password: str
+    gender: str
+    full_name: str
+    street_address: str
+    email: str
 
 
 class ProfileService:
@@ -13,10 +27,56 @@ class ProfileService:
     """
 
     @staticmethod
+    def get_profile_by_id(profile_id: int) -> Profile | None:
+        """
+        Returns the profile with the specified ID, or ``None`` if no such profile exists.
+        """
+        return ProfileService._find_profile_by_id(
+            profile_id, ProfileService.load_profiles()
+        )
+
+    @staticmethod
+    def edit_profile_by_id(profile_id: int, data: EditProfileRequest) -> Profile | None:
+        """
+        Modifies the profile with the specified ID, replacing its attributes from ``data``.
+
+        Returns the modified profile on success, or ``None`` if no such profile exists.
+        """
+        profiles = ProfileService.load_profiles()
+        target_profile = ProfileService._find_profile_by_id(profile_id, profiles)
+
+        if not target_profile:
+            return None
+
+        # Create a copy of the profile with the modified attributes.
+        # See https://github.com/pydantic/pydantic/discussions/3139 for other approaches.
+        target_profile = Profile(**(dict(target_profile) | dict(data)))
+
+        # Save the list of profiles, substituting the modified profile in place of the
+        # original.
+        ProfileService.save_profiles(
+            [target_profile if p.id == profile_id else p for p in profiles]
+        )
+
+        return target_profile
+
+    @staticmethod
+    def _find_profile_by_id(profile_id: int, profiles: list[Profile]) -> Profile | None:
+        """
+        Finds the profile with the specified ID, or ``None`` if no such profile exists.
+        """
+        try:
+            # Iterate through ``profiles`` until we find the first one with matching ID.
+            return next(p for p in profiles if p.id == profile_id)
+        except StopIteration:
+            # The generator will raise ``StopIteration`` if it reaches the end of the
+            # list without finding a match.
+            return None
+
+    @staticmethod
     def load_profiles() -> list[Profile]:
         """
         Loads profiles from the data file.
-
         Note that this function is synchronous, which is not ideal for I/O operations.
         It's OK for now because we'll replace it with a proper database tomorrow (:
         """

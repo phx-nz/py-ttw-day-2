@@ -3,12 +3,12 @@ Unit tests for the profile service.
 """
 
 from models.profile import Profile
-from services.profile import ProfileService
+from services.profile import EditProfileRequest, ProfileService
 
 
 def test_load_profiles(profiles: list[Profile]):
     """
-    Sanity check, to make sure :py:func:services.profile.load_profiles works as
+    Sanity check, to make sure :py:func:ProfileService.load_profiles works as
     expected.
 
     Note that the ``profiles`` fixture monkey-patches the service to load/save profiles
@@ -20,7 +20,7 @@ def test_load_profiles(profiles: list[Profile]):
 
 def test_save_profiles():
     """
-    Sanity check, to make sure :py:func:services.profile.save_profiles works as
+    Sanity check, to make sure :py:func:ProfileService.save_profiles works as
     expected.
 
     Note that we declared the ``profiles`` fixture as ``autouse=True``, so it will
@@ -51,3 +51,79 @@ def test_save_profiles():
 
     loaded_profiles = ProfileService.load_profiles()
     assert loaded_profiles == new_profiles
+
+
+def test_get_profile_by_id_happy_path(profiles: list[Profile]):
+    """
+    Getting a profile by its ID.
+    """
+    assert ProfileService.get_profile_by_id(profiles[0].id) == profiles[0]
+
+
+def test_get_profile_by_id_non_existent():
+    """
+    Attempting to get a profile that doesn't exist.
+    """
+    assert ProfileService.get_profile_by_id(999) is None
+
+
+def test_edit_profile_by_id_happy_path(profiles: list[Profile]):
+    """
+    Editing a profile by its ID.
+    """
+    target_profile = profiles[0]
+
+    data = EditProfileRequest(
+        username="calmcat451",
+        password="shortjane",
+        gender="female",
+        full_name="Ethel Chen",
+        street_address="3775 Deerswim Lane",
+        email="ethel.chen@example.com",
+    )
+
+    actual: Profile = ProfileService.edit_profile_by_id(target_profile.id, data)
+
+    # ID cannot be edited.
+    assert actual.id == target_profile.id
+
+    assert actual.username == data.username
+    assert actual.password == data.password
+    assert actual.gender == data.gender
+    assert actual.full_name == data.full_name
+    assert actual.street_address == data.street_address
+    assert actual.email == data.email
+
+    # Verify that the saved profile was correctly stored in the "database".
+    loaded_profiles = ProfileService.load_profiles()
+
+    # Non-matching profiles were saved unmodified.
+    assert loaded_profiles[1:] == profiles[1:]
+
+    # The updated profile was saved correctly.
+    assert loaded_profiles[0].id == target_profile.id
+    assert loaded_profiles[0].username == data.username
+    assert loaded_profiles[0].password == data.password
+    assert loaded_profiles[0].gender == data.gender
+    assert loaded_profiles[0].full_name == data.full_name
+    assert loaded_profiles[0].street_address == data.street_address
+    assert loaded_profiles[0].email == data.email
+
+
+def test_edit_profile_by_id_non_existent(profiles: list[Profile]):
+    """
+    Attempting to edit a profile that doesn't exist.
+    """
+    data = EditProfileRequest(
+        username="calmcat451",
+        password="shortjane",
+        gender="female",
+        full_name="Ethel Chen",
+        street_address="3775 Deerswim Lane",
+        email="ethel.chen@example.com",
+    )
+
+    assert ProfileService.edit_profile_by_id(999, data) is None
+
+    # No changes were made to the "database".
+    assert ProfileService.load_profiles() == profiles
