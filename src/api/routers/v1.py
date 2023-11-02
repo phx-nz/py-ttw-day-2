@@ -54,3 +54,12 @@ def edit_profile(profile_id: int, body: EditProfileRequest) -> dict:
         raise HTTPException(status_code=404, detail="Profile not found")
 
     return jsonable_encoder(profile)
+
+
+@router.post("/profile")
+def create_profile(body: EditProfileRequest) -> dict:
+    """
+    Adds a profile to the database using the attributes from the response body, and
+    returns the new profile data.
+    """
+    return jsonable_encoder(ProfileService.create_profile(body))
