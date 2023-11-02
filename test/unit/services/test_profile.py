@@ -101,13 +101,15 @@ def test_edit_profile_by_id_happy_path(profiles: list[Profile]):
     assert loaded_profiles[1:] == profiles[1:]
 
     # The updated profile was saved correctly.
-    assert loaded_profiles[0].id == target_profile.id
-    assert loaded_profiles[0].username == data.username
-    assert loaded_profiles[0].password == data.password
-    assert loaded_profiles[0].gender == data.gender
-    assert loaded_profiles[0].full_name == data.full_name
-    assert loaded_profiles[0].street_address == data.street_address
-    assert loaded_profiles[0].email == data.email
+    assert dict(loaded_profiles[0]) == {
+        "id": target_profile.id,
+        "username": "calmcat451",
+        "password": "shortjane",
+        "gender": "female",
+        "full_name": "Ethel Chen",
+        "street_address": "3775 Deerswim Lane",
+        "email": "ethel.chen@example.com",
+    }
 
 
 def test_edit_profile_by_id_non_existent(profiles: list[Profile]):
@@ -127,3 +129,35 @@ def test_edit_profile_by_id_non_existent(profiles: list[Profile]):
 
     # No changes were made to the "database".
     assert ProfileService.load_profiles() == profiles
+
+
+def test_create_profile_happy_path(profiles: list[Profile]):
+    """
+    Successfully adding a profile to the database.
+    """
+    data = EditProfileRequest(
+        username="calmcat451",
+        password="shortjane",
+        gender="female",
+        full_name="Ethel Chen",
+        street_address="3775 Deerswim Lane",
+        email="ethel.chen@example.com",
+    )
+
+    expected = Profile(
+        id=4,
+        username="calmcat451",
+        password="shortjane",
+        gender="female",
+        full_name="Ethel Chen",
+        street_address="3775 Deerswim Lane",
+        email="ethel.chen@example.com",
+    )
+
+    actual: Profile = ProfileService.create_profile(data)
+
+    # The new profile is returned.
+    assert actual == expected
+
+    # The new profile was added to the "database".
+    assert ProfileService.load_profiles() == [*profiles, expected]

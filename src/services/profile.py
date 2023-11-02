@@ -61,6 +61,20 @@ class ProfileService:
         return target_profile
 
     @staticmethod
+    def create_profile(data: EditProfileRequest) -> Profile:
+        """
+        Adds a new profile to the database and returns it.
+        """
+        profiles = ProfileService.load_profiles()
+
+        new_id = max(p.id for p in profiles) + 1
+        new_profile = Profile(id=new_id, **dict(data))
+
+        ProfileService.save_profiles([*profiles, new_profile])
+
+        return new_profile
+
+    @staticmethod
     def _find_profile_by_id(profile_id: int, profiles: list[Profile]) -> Profile | None:
         """
         Finds the profile with the specified ID, or ``None`` if no such profile exists.
