@@ -3,7 +3,7 @@ __all__ = ["EditProfileRequest", "ProfileService"]
 from pathlib import Path
 
 import orjson
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from models.profile import Profile
 
@@ -13,12 +13,12 @@ class EditProfileRequest(BaseModel):
     DTO for passing updated profile to :py:func:`ProfileService.edit_profile_by_id`.
     """
 
-    username: str
-    password: str
+    username: str = Field(min_length=1)
+    password: str = Field(min_length=1)
     gender: str
-    full_name: str
-    street_address: str
-    email: str
+    full_name: str = Field(min_length=1)
+    street_address: str = Field(min_length=1)
+    email: str = Field(min_length=1, pattern=r"@")
 
 
 class ProfileService:
