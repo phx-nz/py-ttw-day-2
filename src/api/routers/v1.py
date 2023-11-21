@@ -4,8 +4,8 @@ Define routes for our v1 API.
 __all__ = ["router"]
 
 from fastapi import APIRouter, HTTPException
-from fastapi.encoders import jsonable_encoder
 
+from models.profile import Profile
 from services.profile import EditProfileRequest, ProfileService
 
 # All API routes defined in this module will have a path prefix of ``/v1``.
@@ -23,7 +23,7 @@ def index() -> dict:
 
 
 @router.get("/profile/{profile_id}")
-def get_profile(profile_id: int) -> dict:
+def get_profile(profile_id: int) -> Profile:
     """
     Retrieves the profile with the specified ID.
 
@@ -34,14 +34,11 @@ def get_profile(profile_id: int) -> dict:
     if not profile:
         raise HTTPException(status_code=404, detail="Profile not found")
 
-    # Pydantic models can't be natively JSON-encoded, so we must convert the profile
-    # into a JSON-friendly format first.
-    # :see: https://fastapi.tiangolo.com/tutorial/encoder/
-    return jsonable_encoder(profile)
+    return profile
 
 
 @router.put("/profile/{profile_id}")
-def edit_profile(profile_id: int, body: EditProfileRequest) -> dict:
+def edit_profile(profile_id: int, body: EditProfileRequest) -> Profile:
     """
     Edits the profile with the specified ID, replacing its attributes from the request
     body, and returns the modified profile.
@@ -53,13 +50,13 @@ def edit_profile(profile_id: int, body: EditProfileRequest) -> dict:
     if not profile:
         raise HTTPException(status_code=404, detail="Profile not found")
 
-    return jsonable_encoder(profile)
+    return profile
 
 
 @router.post("/profile")
-def create_profile(body: EditProfileRequest) -> dict:
+def create_profile(body: EditProfileRequest) -> Profile:
     """
     Adds a profile to the database using the attributes from the response body, and
     returns the new profile data.
     """
-    return jsonable_encoder(ProfileService.create_profile(body))
+    return ProfileService.create_profile(body)
