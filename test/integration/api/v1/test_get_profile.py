@@ -25,3 +25,4 @@ def test_non_existent_profile(client: TestClient):
     """
     response: Response = client.get("/v1/profile/999")
     assert response.status_code == 404
+    assert response.json() == {"detail": "Profile not found"}
